@@ -11,7 +11,7 @@ begin
     gem.homepage = "http://github.com/skddc/commit_hookr"
     gem.authors = ["Michael Bumann", "Sebastian Kippe"]
     gem.executables = ["hookr"]
-    gem.files = FileList["*.rb","bin/*", "lib/**/*", "features/**/*", "test/**/*"]
+    gem.files = FileList["*.rb","bin/*", "lib/**/*", "features/**/*", "test/**/*", "data/**/*"]
     gem.add_dependency "highline"
     gem.add_development_dependency "cucumber"
   end

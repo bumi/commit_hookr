@@ -1,68 +1,102 @@
 #!/usr/bin/env ruby
 
 require "fileutils"
+require 'optparse'
+require 'erubis'
 
-usage_info = "Usage: hookr init [template]"
-usage_info += "\nCurrently your only template option is 'codebase'"
+WORKING_DIRECTORY = FileUtils.pwd
+COMMIT_MSG_FILE  = "#{WORKING_DIRECTORY}/.git/hooks/commit-msg"
+HOOKR_FILE        = "#{WORKING_DIRECTORY}/.hookr"
 
-working_directory = FileUtils.pwd
-commit_msg_file   = "#{working_directory}/.git/hooks/commit-msg"
-hookr_file        = "#{working_directory}/.hookr"
-
-if ARGV.size == 0
-  puts usage_info
-  exit 1
-elsif !File.exist?("#{working_directory}/.git")
+if !File.exist?("#{WORKING_DIRECTORY}/.git")
   puts "You should do this in the root directory of a Git project."
   exit 1
 end
 
-case ARGV[0]
-  
-when "init"
-  case ARGV[1]
-  when nil
-    puts usage_info
-    exit 1
-  when "codebase"
-    puts "Yo dawg I herd u like commit hooks, so I put some file in ur directories:\n\n"
-    unless File.exist?(hookr_file)
-      FileUtils.cp "#{File.dirname(__FILE__)}/../lib/templates/#{ARGV[1]}.rb", hookr_file
-      puts "    added: .hookr"
-    else
-      puts "   exists: .hookr"
-    end
-    unless File.exist?(commit_msg_file)
-      FileUtils.cp "#{File.dirname(__FILE__)}/../lib/templates/commit-msg.rb", commit_msg_file
-      puts "    added: .git/hooks/commit-msg"
-    else
-      FileUtils.cp "#{File.dirname(__FILE__)}/../lib/templates/commit-msg.rb", commit_msg_file
-      puts "  updated: .git/hooks/commit-msg"
-    end
-    FileUtils.chmod 0755, commit_msg_file
-    puts "\n"
-    exit 0
-  else
-    puts "Sorry, the only template available right now is 'codebase'. You can add your own .hookr template, of course."
-    exit 1
-  end
-when "clear"
-  if File.exist?(commit_msg_file) && File.exist?(hookr_file)
-    puts "Well then, if it makes you happy...\n\n"
-    if File.exist?(hookr_file)
-      FileUtils.rm hookr_file
-      puts "  removed: .hookr"
-    end
-    if File.exist?(commit_msg_file)
-      FileUtils.rm commit_msg_file
-      puts "  removed: .git/hooks/commit-msg"
-    end
-    puts "\n"
-    exit 0
-  else
-    puts "There's nothing to clear."
-  end
-  exit 0
-else
-  puts usage_info
+HOOKR_TEMPLATES   = {}
+Dir["#{File.dirname(__FILE__)}/../data/templates/*.rb"].each do |file|
+  HOOKR_TEMPLATES[File.basename(file, ".rb")] = file
 end
+
+ARGV << "-h" if ARGV.size == 0
+
+options = {}
+option_parser = OptionParser.new do |opts|
+  opts.banner = "Usage: hookr [options]"
+  opts.on("-t", "--template [FILE]", "Name or path of the .hookr template") do |path|
+    template_path = HOOKR_TEMPLATES[path] || path
+    unless template_path && File.exists?(template_path)
+      puts "Template not found: #{path}"
+      exit 1
+    end
+    options[:template] = template_path
+  end
+  opts.on("-f", "--force", "Overwrite the current .hookr file and commit-msg hook file") do |force|
+    options[:force] = force
+  end
+  opts.on("-g", "--global [GIT TEMPLATE PATH]", "Add a global commit-msg hook template file") do |global|
+    options[:global] = File.join( (global || "/usr/local/git/share/git-core/templates/hooks"), "commit-msg" )
+  end
+  opts.on("-i", "--nohook", "Do not add the commit-msg hook to the repository") do |ignore|
+    options[:no_hook] = ignore
+  end
+  opts.on("-d", "--delete", "Delete the hookr files") do |delete|
+    options[:delete] = delete
+  end
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit 1
+  end
+end
+option_parser.parse!
+
+template_options= {}
+ARGV.each do |o|
+  key,value = o.split(":")
+  template_options[key] = value
+end
+
+puts "\n"
+puts "Yo dawg I herd u like commit hooks, so I edited some file in ur directories:\n\n"
+
+if (options[:force] || !File.exist?(HOOKR_FILE)) && options[:template]
+  template = Erubis::Eruby.new(File.read(options[:template]))
+  File.open(HOOKR_FILE, "w+") do |f|
+    f.write template.evaluate(template_options)
+  end
+  puts "  added: .hookr"
+end
+
+if !options[:no_hook] && (options[:force] || !File.exist?(COMMIT_MSG_FILE))
+  FileUtils.cp "#{File.dirname(__FILE__)}/../data/templates/commit-msg.rb", COMMIT_MSG_FILE
+  FileUtils.chmod 0755, COMMIT_MSG_FILE
+  puts "  added: .git/hooks/commit-msg"
+end
+
+if options[:global]
+  FileUtils.cp "#{File.dirname(__FILE__)}/../data/templates/commit-msg.rb", options[:global]
+  FileUtils.chmod 0755, options[:global]
+  puts "  added #{options[:global]}"
+end
+
+if options[:delete]
+  puts "Well then, if it makes you happy... let's remove the hookr\n\n"
+  if File.exists?(COMMIT_MSG_FILE)
+    FileUtils.rm(COMMIT_MSG_FILE) 
+    puts "  removed .git/hooks/commit-msg"
+  end
+  if File.exists?(HOOKR_FILE)
+    FileUtils.rm(HOOKR_FILE) 
+    puts "  removed .hookr"
+  end
+  if options[:global] && File.exists?(options[:global])
+    FileUtils.rm(options[:global]) 
+    puts "  remove #{options[:global]}"
+  end
+end
+
+puts "\n"
+puts "DONE"
+puts "\n"
+exit 0
+

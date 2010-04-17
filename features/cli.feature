@@ -10,7 +10,7 @@ Feature: commit_hookr Command Line Interface
 
   Scenario: Run hookr in a directory that's not a Git project root
     Given I run "rm -rf .git"
-    When I run hookr with "init codebase"
+    When I run hookr with "-t codebase"
     Then I should see "You should do this in the root directory of a Git project."
     And the exit status should be 1
 
@@ -20,15 +20,11 @@ Feature: commit_hookr Command Line Interface
     And the exit status should be 1
 
   Scenario: Initialize commit hook    
-    When I run hookr with "init"
-    Then I should see the usage info
+    When I run hookr with "-t notthere"
+    Then I should see "Template not found: notthere"
     And the exit status should be 1
     
-    When I run hookr with "init lighthouse"
-    Then I should see "Sorry, the only template available right now is 'codebase'."
-    And the exit status should be 1
-    
-    When I run hookr with "init codebase"
+    When I run hookr with "-t codebase"
     Then I should see "Yo dawg I herd u like commit hooks, so I put some file in ur directories:"
     And the exit status should be 0
     And the following files should exist:
@@ -37,10 +33,6 @@ Feature: commit_hookr Command Line Interface
     
   Scenario: Clear commit hook
     Given I run hookr with "init codebase"
-    When I run hookr with "clear"
+    When I run hookr with "-d"
     Then I should see "Well then, if it makes you happy..."
     
-  Scenario: Clear non-existent commit hook
-    Given there are no commit hook files
-    When I run hookr with "clear"
-    Then I should see "There's nothing to clear."

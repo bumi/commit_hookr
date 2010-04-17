@@ -1,45 +1,45 @@
 #!/usr/bin/env ruby
 require "rubygems"
 require "highline"
+require "commit_hookr/message"
+
 HighLine.track_eof = false
 
-class CommitHookr
-  def self.call(&block)
-    @@hook = block
-  end
-    
-  attr_accessor :message, :message_file
+module CommitHookr
   
-  def initialize(message_file)
-    self.message_file = message_file
-    self.message = ""
+  @@message_script = proc {}
+  @@policies = {}
+  @@helper_script = proc {}
+  @@config = {}
+  def self.message_script
+    @@message_script
   end
-  
-  def original_message
-    File.read(message_file)
+  def self.policies
+    @@policies
   end
-
-  def run
-    STDIN.reopen '/dev/tty' unless STDIN.tty?
-    instance_eval &@@hook
-    exit 0
+  def self.helper_script
+    @@helper_script
   end
-
-  def ui
-    @highline ||= HighLine.new
+  def self.config
+    @@config
+  end
+  def self.config=(value)
+    @@config = value
   end
   
-  def abort!
-    exit 1
+  def self.message(&block)
+    @@message_script = block
   end
   
-  def commit!
-    exit 0
+  def self.policy(name, options={}, &block)
+    @@policies[name] = options.merge(:command => block)
   end
   
-  def write(message)
-    File.open(message_file, "w+") do |f|
-      f.write message
-    end
+  def self.helpers(&block)
+    @@helper_script = block
   end
+  
+end
+Dir[File.join(File.dirname(__FILE__), "../data/", "policies", "*.rb")].each do |policy|
+  require policy
 end

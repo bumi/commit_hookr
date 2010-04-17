@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Michael Bumann", "Sebastian Kippe"]
-  s.date = %q{2010-03-21}
+  s.date = %q{2010-04-17}
   s.default_executable = %q{hookr}
   s.description = %q{}
   s.email = %q{info@sebastiankippe.de}
@@ -20,23 +20,31 @@ Gem::Specification.new do |s|
   ]
   s.files = [
     "bin/hookr",
+     "data/policies/ticket_number.rb",
+     "data/policies/time_entry.rb",
+     "data/policies/what_and_why.rb",
+     "data/templates/codebase.rb",
+     "data/templates/commit-msg.rb",
+     "data/templates/github.rb",
      "features/cli.feature",
      "features/step_definitions/cli_steps.rb",
      "features/support/env.rb",
      "lib/commit_hookr.rb",
-     "lib/templates/codebase.rb",
-     "lib/templates/commit-msg.rb",
+     "lib/commit_hookr/message.rb",
+     "test/commit_message",
      "test/helper.rb",
-     "test/test_commit_hookr.rb"
+     "test/test_commit_hookr.rb",
+     "test/test_message.rb"
   ]
   s.homepage = %q{http://github.com/skddc/commit_hookr}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.6}
+  s.rubygems_version = %q{1.3.5}
   s.summary = %q{Configurable git commit hooks for your team}
   s.test_files = [
     "test/helper.rb",
-     "test/test_commit_hookr.rb"
+     "test/test_commit_hookr.rb",
+     "test/test_message.rb"
   ]
 
   if s.respond_to? :specification_version then
