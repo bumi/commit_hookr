@@ -1,8 +1,14 @@
 = commit_hookr
 
-Git commit-msg hook templates for your team. Currently comes only with a hook template for an interactive commit menu, because that's what we needed it for.
+Git commit-msg hook templates for your team.
 
 commit_hookr makes it easy to enforce commit message policies. We use it to make sure we don't forget to add our Codebase ticket numbers and times to the commit message. As the hook itself is checked into the project repository, it's automatically updated for all team members after their next pull when you change something.
+
+
+== Policy examples
+
+Have a look at the /data/policies files and /data/templates/codebase.rb
+
 
 == Usage
 
@@ -12,7 +18,10 @@ commit_hookr makes it easy to enforce commit message policies. We use it to make
     
 2. In your Git project's root:
 
-    hookr init codebase
+    hookr # and follow the instructions/options
+    
+    for example:
+    hookr -t codebase
     
 3. Edit .hookr to your liking. If you want to use Codebase ticket listing, you need to configure the codebase project name.
 
@@ -20,8 +29,18 @@ commit_hookr makes it easy to enforce commit message policies. We use it to make
 
 There's also a shortcut for removing the commit_hookr files:
 
-  hookr clear
+  hookr -d
 
+
+== Options for the hookr command
+
+  -t, --template [FILE]            Name or path of the .hookr template
+  -f, --force                      Overwrite the current .hookr file and commit-msg hook file
+  -g, --global [GIT TEMPLATE PATH] Add a global commit-msg hook template file
+  -i, --nohook                     Do not add the commit-msg hook to the repository
+  -d, --delete                     Delete the hookr files
+  -h, --help                       Show this message
+  
     
 == Issues
 
