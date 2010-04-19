@@ -39,6 +39,10 @@ module CommitHookr
     @@helper_script = block
   end
   
+  def self.call(&block)
+    puts "your .hookr file is deprecated and ignored. Please run hookr -t <your template> to update it"
+  end
+  
 end
 Dir[File.join(File.dirname(__FILE__), "../data/", "policies", "*.rb")].each do |policy|
   require policy
