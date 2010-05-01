@@ -40,7 +40,11 @@ module CommitHookr
   end
   
   def self.call(&block)
-    puts "your .hookr file is deprecated and ignored. Please run hookr -t <your template> to update it"
+    puts "your .hookr file is deprecated and ignored. Please run hookr -t <your template> to update your .hookr file and the git commit-msg hook. For more information check the readme on http://github.com/skddc/commit_hookr"
+    exit
+  end
+  def self.new(*args)
+    exit
   end
   
 end
