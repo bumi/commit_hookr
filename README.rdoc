@@ -12,7 +12,7 @@ Have a look at the /data/policies files and /data/templates/codebase.rb
 
 == Global git commit-msg callbacks
 
-When ceating/cloning a new git repository example hook files are copied from a system wide directory into every repositories .git/hooks direcotry. CommitHookr's global option uses this to create a global CommitHookr template file which then gets copied into every new repository.
+When creating/cloning a new git repository example hook files are copied from a system wide directory into every repositories .git/hooks direcotry. CommitHookr's global option uses this to create a global CommitHookr template file which then gets copied into every new repository.
 You can enable the global template with the -g option. The -d option also deletes the global hook file.
 * Note: CommitHookr assumes the git hooks template directory is /usr/local/git/share/git-core/templates/hooks. If this does not fit for your installation just provide the directory path. for example hookr -g /paht/to/git-core/templates/hooks *
 
